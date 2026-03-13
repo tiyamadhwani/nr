@@ -38,7 +38,7 @@ const PRECACHE_URLS = [
 ];
 
 // API paths — always network first
-const API_PATTERNS = ['/api/', 'localhost:5000'];
+const API_PATTERNS = ['/api/', 'nr-cjcp.onrender.com'];
 
 
 // ──────────────────────────────────────────────────────────

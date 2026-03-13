@@ -5,7 +5,10 @@
 
 'use strict';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE =
+  window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : "https://nr-cjcp.onrender.com";
 
 /* ─────────────────────────────────────────────────────────
    THEME
