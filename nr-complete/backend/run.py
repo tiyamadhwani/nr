@@ -62,8 +62,6 @@ def join_admin(data):
     from flask_socketio import join_room
     join_room('admins')
 
-import os
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     print(f"Server starting on port {port}")
