@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You're Offline – NR Sabji Mandi</title>
+  <link rel="stylesheet" href="src/css/variables.css">
+  <link rel="stylesheet" href="src/css/base.css">
+  <style>
+    body { display:flex; align-items:center; justify-content:center; min-height:100vh; text-align:center; padding:24px; }
+    .offline-card { max-width:400px; }
+    .offline-icon { font-size:5rem; margin-bottom:24px; animation:float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .retry-btn {
+      display:inline-flex; align-items:center; gap:8px;
+      padding:13px 32px; border-radius:999px;
+      background:var(--c-forest); color:#fff; font-weight:700;
+      border:none; cursor:pointer; font-size:.95rem; margin-top:24px;
+      transition:background .2s, transform .2s;
+    }
+    .retry-btn:hover { background:var(--c-leaf); transform:translateY(-2px); }
+    .cached-hint { margin-top:16px; font-size:.82rem; color:var(--text-muted); }
+  </style>
+</head>
+<body>
+  <div class="offline-card">
+    <div class="offline-icon">🥦</div>
+    <h1 style="font-size:1.8rem;margin-bottom:12px;">You're Offline</h1>
+    <p style="color:var(--text-sec);">
+      Looks like you've lost internet connection. Your cart is safely saved and your orders are intact.
+    </p>
+    <p style="color:var(--text-sec);margin-top:10px;" class="font-hindi">
+      इंटरनेट कनेक्शन नहीं है। कृपया नेटवर्क जाँचें।
+    </p>
+    <button class="retry-btn" onclick="window.location.reload()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+      </svg>
+      Try Again
+    </button>
+    <div class="cached-hint">
+      Some pages from your last visit may still be accessible.
+      <br><a href="/" style="color:var(--c-forest);font-weight:600;">Try Home Page →</a>
+    </div>
+  </div>
+</body>
+</html>

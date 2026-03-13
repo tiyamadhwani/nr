@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buy Fresh Vegetables &amp; Fruits Online – NR Sabji Mandi Udaipur</title>
+  <meta name="description" content="Browse all fresh vegetables and fruits available for home delivery in Udaipur. Best prices on tomatoes, potatoes, onions, apples, mangoes and more.">
+  <meta name="keywords" content="buy vegetables online Udaipur, fresh fruits order, sabzi online Rajasthan, tomato home delivery, potato onion order online">
+  <link rel="icon" type="image/png" href="src/images/favicon.png">
+  <link rel="stylesheet" href="src/css/variables.css">
+  <link rel="stylesheet" href="src/css/base.css">
+  <link rel="stylesheet" href="src/css/components.css">
+  <link rel="stylesheet" href="src/css/layout.css">
+  <link rel="stylesheet" href="src/css/pages.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<!-- Page Hero -->
+<div class="products-page-hero">
+  <div class="container">
+    <nav aria-label="breadcrumb" style="font-size:.84rem;opacity:.75;margin-bottom:10px;">
+      <a href="/" style="color:rgba(255,255,255,.8);">Home</a>
+      <span style="margin:0 8px;">›</span>
+      <span>All Products</span>
+    </nav>
+    <h1 style="font-size:1.9rem;color:#fff;">Fresh Vegetables &amp; Fruits</h1>
+    <p style="color:rgba(255,255,255,.8);margin-top:6px;font-size:.92rem;">Farm-fresh produce delivered to your door in Udaipur</p>
+  </div>
+</div>
+
+<!-- Category Quick Nav Pills -->
+<div style="background:var(--bg-card);border-bottom:1px solid var(--border);position:sticky;top:var(--nav-h);z-index:90;overflow-x:auto;">
+  <div class="container" style="display:flex;gap:8px;padding:12px 0;overflow-x:auto;scrollbar-width:none;">
+    <button class="cat-pill active" id="qpill-all" data-cat="all" onclick="quickFilter('all',this)" style="white-space:nowrap;flex-shrink:0;">
+      🛒 All
+    </button>
+    <button class="cat-pill" id="qpill-vegetable" data-cat="vegetable" onclick="quickFilter('vegetable',this)" style="white-space:nowrap;flex-shrink:0;">
+      🥦 Vegetables
+    </button>
+    <button class="cat-pill" id="qpill-fruit" data-cat="fruit" onclick="quickFilter('fruit',this)" style="white-space:nowrap;flex-shrink:0;">
+      🍎 Fruits
+    </button>
+    <button class="cat-pill" id="qpill-leafy" data-cat="leafy" onclick="quickFilter('leafy',this)" style="white-space:nowrap;flex-shrink:0;">
+      🥬 Leafy Greens
+    </button>
+    <button class="cat-pill" id="qpill-seasonal" data-cat="seasonal" onclick="quickFilter('seasonal',this)" style="white-space:nowrap;flex-shrink:0;">
+      🌿 Seasonal
+    </button>
+  </div>
+</div>
+
+<!-- Main layout -->
+<div class="products-layout">
+
+  <!-- Sidebar -->
+  <aside class="filter-sidebar">
+    <h4 style="margin-bottom:20px;font-size:.92rem;">Filter Products</h4>
+
+    <div class="filter-section">
+      <div class="filter-title">Category</div>
+      <label class="filter-option"><input type="radio" name="cat" value="all" checked onchange="applyFilters()"> 🛒 All Products</label>
+      <label class="filter-option"><input type="radio" name="cat" value="vegetable" onchange="applyFilters()"> 🥦 Vegetables</label>
+      <label class="filter-option"><input type="radio" name="cat" value="fruit" onchange="applyFilters()"> 🍎 Fruits</label>
+      <label class="filter-option"><input type="radio" name="cat" value="leafy" onchange="applyFilters()"> 🥬 Leafy Greens</label>
+      <label class="filter-option"><input type="radio" name="cat" value="seasonal" onchange="applyFilters()"> 🌿 Seasonal</label>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">Availability</div>
+      <label class="filter-option"><input type="checkbox" id="onlyAvail" checked onchange="applyFilters()"> Available only</label>
+      <label class="filter-option"><input type="checkbox" id="onlyFeatured" onchange="applyFilters()"> Featured</label>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-title">Sort By</div>
+      <select id="sortBy" class="form-input" style="font-size:.85rem;padding:9px;" onchange="applyFilters()">
+        <option value="">Default</option>
+        <option value="price_asc">Price: Low to High</option>
+        <option value="price_desc">Price: High to Low</option>
+        <option value="name_asc">Name: A–Z</option>
+      </select>
+    </div>
+
+    <button class="btn btn-ghost btn-full btn-sm" onclick="clearFilters()">
+      <i class="fas fa-times"></i> Clear Filters
+    </button>
+  </aside>
+
+  <!-- Products area -->
+  <div class="products-main">
+    <div class="products-top">
+      <div id="resultCount" style="font-size:.88rem;color:var(--text-muted);"></div>
+    </div>
+    <div class="products-grid" id="productsGrid">
+      <div class="skeleton" style="height:300px;border-radius:var(--r-lg);"></div>
+      <div class="skeleton" style="height:300px;border-radius:var(--r-lg);"></div>
+      <div class="skeleton" style="height:300px;border-radius:var(--r-lg);"></div>
+      <div class="skeleton" style="height:300px;border-radius:var(--r-lg);"></div>
+    </div>
+    <div style="text-align:center;margin-top:32px;">
+      <button id="loadMoreBtn" class="btn btn-outline btn-lg" onclick="loadMore()" style="display:none;">
+        Load More Products <i class="fas fa-chevron-down"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="cart-placeholder"></div>
+<div id="auth-modal-placeholder"></div>
+<div id="chatbot-placeholder"></div>
+<div id="footer-placeholder"></div>
+
+<script src="src/js/partials.js"></script>
+<script src="src/js/app.js"></script>
+<script>
+let currentPage = 1;
+const PER_PAGE  = 20;
+
+async function loadProducts(reset = true) {
+  if (reset) currentPage = 1;
+  const cat    = document.querySelector('input[name="cat"]:checked')?.value || 'all';
+  const avail  = document.getElementById('onlyAvail')?.checked;
+  const feat   = document.getElementById('onlyFeatured')?.checked;
+  const sort   = document.getElementById('sortBy')?.value;
+
+  let url = `/products/?page=${currentPage}&per_page=${PER_PAGE}`;
+  if (cat   !== 'all') url += `&category=${cat}`;
+  if (avail)           url += `&available=true`;
+  if (feat)            url += `&featured=true`;
+
+  const grid = document.getElementById('productsGrid');
+  if (reset) grid.innerHTML = Array(8).fill(`<div class="skeleton" style="height:300px;border-radius:var(--r-lg);"></div>`).join('');
+
+  try {
+    const data = await api(url);
+    let products = data.products;
+
+    if (sort === 'price_asc')  products.sort((a,b) => a.price_per_unit - b.price_per_unit);
+    if (sort === 'price_desc') products.sort((a,b) => b.price_per_unit - a.price_per_unit);
+    if (sort === 'name_asc')   products.sort((a,b) => a.name.localeCompare(b.name));
+
+    if (reset) {
+      pageProducts = products;
+      grid.innerHTML = '';
+    } else {
+      pageProducts.push(...products);
+    }
+
+    if (pageProducts.length === 0) {
+      grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--text-muted);"><div style="font-size:2.5rem;margin-bottom:12px;">🥦</div><p>No products found.</p><button class="btn btn-primary" style="margin-top:14px;" onclick="clearFilters()">Show All</button></div>`;
+    } else {
+      grid.innerHTML = pageProducts.map((p, i) => productCard(p, i * 0.03)).join('');
+    }
+
+    document.getElementById('resultCount').textContent =
+      `Showing ${pageProducts.length} of ${data.total} products`;
+    document.getElementById('loadMoreBtn').style.display =
+      data.page < data.pages ? '' : 'none';
+  } catch {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 0;"><p style="color:var(--text-muted);">Failed to load products.</p><button class="btn btn-primary" style="margin-top:14px;" onclick="loadProducts()">Retry</button></div>`;
+  }
+}
+
+async function searchProducts(q) {
+  const grid = document.getElementById('productsGrid');
+  grid.innerHTML = Array(4).fill(`<div class="skeleton" style="height:300px;border-radius:var(--r-lg);"></div>`).join('');
+
+  try {
+    const data = await api(`/search/?q=${encodeURIComponent(q)}`);
+    pageProducts = data.products;
+    document.getElementById('resultCount').textContent =
+      data.results_found ? `${data.result_count} result(s) for "${q}"` : `No results for "${q}"`;
+
+    if (!data.results_found) {
+      grid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--text-muted);">
+          <div style="font-size:2.5rem;margin-bottom:14px;">🔍</div>
+          <h3 style="margin-bottom:8px;">No results for "${q}"</h3>
+          <p style="font-size:.88rem;">We've noted your request. Try another keyword or browse all products.</p>
+          <button class="btn btn-primary" style="margin-top:20px;" onclick="clearFilters()">Browse All</button>
+        </div>`;
+    } else {
+      grid.innerHTML = pageProducts.map((p, i) => productCard(p, i * 0.04)).join('');
+    }
+    document.getElementById('loadMoreBtn').style.display = 'none';
+  } catch {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);">Search failed. Please try again.</div>`;
+  }
+}
+
+function quickFilter(cat, btn) {
+  // Sync sidebar radio
+  const radio = document.querySelector(`input[name="cat"][value="${cat}"]`);
+  if (radio) radio.checked = true;
+  // Sync pill active states
+  document.querySelectorAll('[id^="qpill-"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadProducts(true);
+}
+
+function applyFilters()  { 
+  // Sync quick pills with sidebar
+  const cat = document.querySelector('input[name="cat"]:checked')?.value || 'all';
+  document.querySelectorAll('[id^="qpill-"]').forEach(b => b.classList.remove('active'));
+  const pill = document.getElementById(`qpill-${cat}`);
+  if (pill) pill.classList.add('active');
+  loadProducts(true); 
+}
+function loadMore()      { currentPage++; loadProducts(false); }
+
+function clearFilters() {
+  document.querySelector('input[name="cat"][value="all"]').checked = true;
+  document.getElementById('onlyAvail').checked = true;
+  document.getElementById('onlyFeatured').checked = false;
+  document.getElementById('sortBy').value = '';
+  document.querySelectorAll('[id^="qpill-"]').forEach(b => b.classList.remove('active'));
+  const allPill = document.getElementById('qpill-all');
+  if (allPill) allPill.classList.add('active');
+  history.replaceState({}, '', '/products');
+  loadProducts(true);
+}
+
+// Read URL params on load
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const q   = params.get('q');
+  const cat = params.get('cat');
+  if (q) {
+    searchProducts(q);
+  } else if (cat) {
+    const radio = document.querySelector(`input[name="cat"][value="${cat}"]`);
+    if (radio) radio.checked = true;
+    loadProducts(true);
+  } else {
+    loadProducts(true);
+  }
+});
+</script>
+</body>
+</html>

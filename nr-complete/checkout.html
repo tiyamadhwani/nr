@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout – NR Sabji Mandi</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="src/images/favicon.png">
+  <link rel="stylesheet" href="src/css/variables.css">
+  <link rel="stylesheet" href="src/css/base.css">
+  <link rel="stylesheet" href="src/css/components.css">
+  <link rel="stylesheet" href="src/css/layout.css">
+  <link rel="stylesheet" href="src/css/pages.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<!-- Steps bar -->
+<div style="background:var(--bg-card);border-bottom:1px solid var(--border);padding:16px var(--space-xl);">
+  <div class="steps" style="max-width:560px;margin:0 auto;" id="stepsBar">
+    <div class="step-item active" id="si1">
+      <div class="step-num" id="sn1">1</div>
+      <span class="step-label" id="sl1">Address</span>
+      <div class="step-line" id="sline1"></div>
+    </div>
+    <div class="step-item" id="si2">
+      <div class="step-num" id="sn2">2</div>
+      <span class="step-label" id="sl2">Payment</span>
+      <div class="step-line" id="sline2"></div>
+    </div>
+    <div class="step-item" id="si3">
+      <div class="step-num" id="sn3">3</div>
+      <span class="step-label" id="sl3">Confirm</span>
+    </div>
+  </div>
+</div>
+
+<div class="checkout-layout">
+  <!-- Left -->
+  <div>
+
+    <!-- Step 1: Address -->
+    <div id="stepAddress">
+      <div class="checkout-panel">
+        <h3><span class="panel-icon"><i class="fas fa-map-marker-alt"></i></span> Delivery Address</h3>
+
+        <div id="savedAddrSection" style="display:none;margin-bottom:20px;">
+          <div style="font-size:.82rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Your Saved Addresses</div>
+          <div id="savedAddrList" style="display:flex;flex-direction:column;gap:8px;"></div>
+          <button onclick="toggleNewAddrForm(true)" class="btn btn-ghost btn-sm" style="margin-top:12px;border-style:dashed;color:var(--c-forest);border-color:var(--c-forest);width:100%;">
+            <i class="fas fa-plus"></i> Use a Different Address
+          </button>
+        </div>
+
+        <div id="newAddrForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Full Name *</label>
+              <input type="text" class="form-input" id="fName" placeholder="Recipient name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mobile Number *</label>
+              <input type="tel" class="form-input" id="fPhone" placeholder="10-digit number" maxlength="10">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">House / Street Address *</label>
+            <input type="text" class="form-input" id="fStreet" placeholder="House no., street name, landmark">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Area / Colony *</label>
+              <input type="text" class="form-input" id="fArea" placeholder="e.g. Hiran Magri, Sector 11">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pincode *</label>
+              <input type="text" class="form-input" id="fPin" placeholder="313001" maxlength="6">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input type="text" class="form-input" id="fCity" value="Udaipur">
+            </div>
+            <div class="form-group">
+              <label class="form-label">State</label>
+              <input type="text" class="form-input" id="fState" value="Rajasthan">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Delivery Notes <span style="font-weight:400;text-transform:none;">(optional)</span></label>
+            <textarea class="form-input" id="fNotes" placeholder="Any special delivery instructions..." rows="2"></textarea>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-full" onclick="goToPayment()" style="margin-top:8px;">
+          Continue to Payment <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Payment -->
+    <div id="stepPayment" style="display:none;">
+      <div class="checkout-panel">
+        <h3><span class="panel-icon"><i class="fas fa-credit-card"></i></span> Payment Method</h3>
+
+        <div id="paymentOptions">
+          <div class="payment-option selected" onclick="selectPayment('cod', this)">
+            <input type="radio" name="pay" value="cod" checked style="accent-color:var(--c-forest);">
+            <span class="payment-icon">💵</span>
+            <div class="payment-info">
+              <div class="pname">Cash on Delivery</div>
+              <div class="pdesc">Pay when your fresh sabzi arrives</div>
+            </div>
+          </div>
+          <div class="payment-option" onclick="selectPayment('upi', this)">
+            <input type="radio" name="pay" value="upi" style="accent-color:var(--c-forest);">
+            <span class="payment-icon">📱</span>
+            <div class="payment-info">
+              <div class="pname">UPI Payment</div>
+              <div class="pdesc">Google Pay, PhonePe, Paytm, BHIM</div>
+            </div>
+          </div>
+          <div class="payment-option" onclick="selectPayment('card', this)">
+            <input type="radio" name="pay" value="card" style="accent-color:var(--c-forest);">
+            <span class="payment-icon">💳</span>
+            <div class="payment-info">
+              <div class="pname">Debit / Credit Card</div>
+              <div class="pdesc">Visa, Mastercard, RuPay accepted</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:22px;">
+          <button class="btn btn-ghost" onclick="goBack()" style="flex:1;">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button class="btn btn-primary" onclick="placeOrder()" style="flex:2;" id="placeOrderBtn">
+            <i class="fas fa-check-circle"></i> Place Order
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Success -->
+    <div id="stepSuccess" style="display:none;">
+      <div class="checkout-panel">
+        <div class="order-success">
+          <div class="success-checkmark"><i class="fas fa-check"></i></div>
+          <h2 style="color:var(--c-forest);margin-bottom:10px;">Order Placed!</h2>
+          <p style="color:var(--text-sec);margin-bottom:6px;">Your fresh vegetables and fruits will be delivered soon.</p>
+          <p style="font-size:.84rem;color:var(--text-muted);">A confirmation email has been sent to you.</p>
+          <div class="order-num-display" id="orderNumDisplay"></div>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:10px;">
+            <a href="/orders" class="btn btn-primary">
+              <i class="fas fa-receipt"></i> Track Order
+            </a>
+            <a href="/" class="btn btn-ghost">
+              Continue Shopping
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right: Order summary -->
+  <div class="order-summary-sticky">
+    <div class="order-summary">
+      <h3>Order Summary</h3>
+      <div id="summaryList" style="max-height:280px;overflow-y:auto;margin-bottom:16px;"></div>
+      <div class="summary-totals">
+        <div class="summary-row"><span>Subtotal</span><span id="sumSub">Rs.0</span></div>
+        <div class="summary-row"><span>Delivery Charges</span><span id="sumDel" style="color:var(--c-forest);">Rs.30</span></div>
+        <div class="summary-row total"><span>Grand Total</span><span id="sumTot">Rs.0</span></div>
+      </div>
+      <div id="sumDeliveryMsg" style="font-size:.78rem;color:var(--c-forest);text-align:center;margin-top:8px;"></div>
+      <div style="margin-top:14px;background:var(--bg-subtle);border-radius:var(--r-sm);padding:10px 13px;font-size:.8rem;color:var(--text-sec);display:flex;align-items:center;gap:8px;">
+        <i class="fas fa-shield-alt" style="color:var(--c-forest);"></i>
+        Secure checkout. 100% fresh guaranteed.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="auth-modal-placeholder"></div>
+<div id="footer-placeholder"></div>
+
+<script src="src/js/partials.js"></script>
+<script src="src/js/app.js"></script>
+<script>
+/* Guard */
+document.addEventListener('DOMContentLoaded', () => {
+  if (!Auth.loggedIn()) {
+    Toast.show('Please sign in to checkout', 'warning');
+    setTimeout(() => window.location.href = '/', 1600);
+    return;
+  }
+  if (Cart.get().length === 0) {
+    Toast.show('Your cart is empty', 'warning');
+    setTimeout(() => window.location.href = '/', 1600);
+    return;
+  }
+  renderSummary();
+  loadSavedAddresses();
+  prefillUser();
+});
+
+function renderSummary() {
+  const items = Cart.get();
+  document.getElementById('summaryList').innerHTML = items.map(i => `
+    <div class="summary-item">
+      <img class="summary-item-img"
+           src="${i.image_url || 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=80&q=50'}"
+           alt="${i.name}"
+           onerror="this.src='https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=80&q=50'">
+      <div style="flex:1;">
+        <div class="summary-item-name">${i.name}</div>
+        <div class="summary-item-qty">${i.qty} ${i.unit} × Rs.${i.price_per_unit}</div>
+      </div>
+      <div class="summary-item-price">Rs.${(i.price_per_unit * i.qty).toFixed(0)}</div>
+    </div>
+  `).join('');
+  const sub = Cart.subtotal(), del = Cart.delivery(), tot = Cart.total();
+  document.getElementById('sumSub').textContent = `Rs.${sub.toFixed(0)}`;
+  document.getElementById('sumDel').textContent = del === 0 ? 'FREE' : `Rs.${del}`;
+  document.getElementById('sumTot').textContent = `Rs.${tot.toFixed(0)}`;
+  document.getElementById('sumDeliveryMsg').textContent =
+    sub < 300 ? `Add Rs.${(300 - sub).toFixed(0)} more for free delivery` : 'You have free delivery!';
+}
+
+function prefillUser() {
+  const u = Auth.user();
+  if (u) {
+    document.getElementById('fName').value  = u.name  || '';
+    document.getElementById('fPhone').value = u.phone || '';
+  }
+}
+
+async function loadSavedAddresses() {
+  try {
+    const data = await api('/auth/me');
+    if (data.addresses?.length) {
+      const sec  = document.getElementById('savedAddrSection');
+      const list = document.getElementById('savedAddrList');
+      const form = document.getElementById('newAddrForm');
+      sec.style.display = 'block';
+      form.style.display = 'none';
+      list.innerHTML = data.addresses.map(a => `
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:13px;border:2px solid ${a.is_default?'var(--c-forest)':'var(--border)'};border-radius:var(--r-md);cursor:pointer;background:${a.is_default?'var(--c-dew)':'var(--bg-card)'};">
+          <input type="radio" name="savedAddr" value="${a.id}" ${a.is_default?'checked':''} style="margin-top:3px;accent-color:var(--c-forest);" onchange="selectSavedAddr(${JSON.stringify(a).replace(/"/g,'&quot;')})">
+          <div>
+            <div style="font-weight:700;font-size:.88rem;">${a.full_name} <span class="badge badge-green" style="font-size:.68rem;">${a.label}</span></div>
+            <div style="font-size:.82rem;color:var(--text-sec);margin-top:2px;">${a.phone}</div>
+            <div style="font-size:.82rem;color:var(--text-muted);">${a.street}, ${a.area}, ${a.city} – ${a.pincode}</div>
+          </div>
+        </label>`).join('');
+      if (data.addresses.find(a => a.is_default)) selectSavedAddr(data.addresses.find(a => a.is_default));
+    }
+  } catch {}
+}
+
+function selectSavedAddr(a) {
+  document.getElementById('fName').value   = a.full_name;
+  document.getElementById('fPhone').value  = a.phone;
+  document.getElementById('fStreet').value = a.street;
+  document.getElementById('fArea').value   = a.area;
+  document.getElementById('fCity').value   = a.city;
+  document.getElementById('fState').value  = a.state;
+  document.getElementById('fPin').value    = a.pincode;
+}
+
+function toggleNewAddrForm(show) {
+  document.getElementById('newAddrForm').style.display = show ? '' : 'none';
+}
+
+function selectPayment(val, el) {
+  document.querySelectorAll('.payment-option').forEach(o => { o.classList.remove('selected'); o.querySelector('input').checked = false; });
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
+}
+
+let currentStep = 1;
+function setStep(n) {
+  currentStep = n;
+  [1,2,3].forEach(i => {
+    const num = document.getElementById(`sn${i}`);
+    const lbl = document.getElementById(`sl${i}`);
+    const line = document.getElementById(`sline${i}`);
+    if (i < n)  { num.textContent = '✓'; num.style.background = 'var(--c-forest)'; num.style.color = '#fff'; if(line) line.classList.add('done'); }
+    else if (i===n) { num.textContent = i; num.style.background = 'var(--c-forest)'; num.style.color='#fff'; if(lbl) { lbl.style.color='var(--c-forest)'; lbl.style.fontWeight='700'; } }
+    else { num.textContent = i; num.style.background = ''; num.style.color = ''; if(lbl) { lbl.style.color=''; lbl.style.fontWeight=''; } }
+  });
+}
+
+function goToPayment() {
+  const name  = document.getElementById('fName').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  const str   = document.getElementById('fStreet').value.trim();
+  const area  = document.getElementById('fArea').value.trim();
+  const pin   = document.getElementById('fPin').value.trim();
+  if (!name||!phone||!str||!area||!pin) { Toast.show('Please fill all required address fields', 'error'); return; }
+  if (phone.length !== 10) { Toast.show('Enter a valid 10-digit phone number', 'error'); return; }
+  document.getElementById('stepAddress').style.display = 'none';
+  document.getElementById('stepPayment').style.display = '';
+  setStep(2);
+}
+
+function goBack() {
+  document.getElementById('stepPayment').style.display = 'none';
+  document.getElementById('stepAddress').style.display = '';
+  setStep(1);
+}
+
+async function placeOrder() {
+  const items = Cart.get();
+  if (!items.length) { Toast.show('Cart is empty', 'error'); return; }
+
+  const btn = document.getElementById('placeOrderBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner spinner-sm" style="display:inline-block;margin-right:8px;vertical-align:middle;"></div> Placing Order...';
+
+  const body = {
+    delivery_name:    document.getElementById('fName').value.trim(),
+    delivery_phone:   document.getElementById('fPhone').value.trim(),
+    delivery_street:  document.getElementById('fStreet').value.trim(),
+    delivery_area:    document.getElementById('fArea').value.trim(),
+    delivery_city:    document.getElementById('fCity').value.trim(),
+    delivery_state:   document.getElementById('fState').value.trim(),
+    delivery_pincode: document.getElementById('fPin').value.trim(),
+    payment_method:   document.querySelector('input[name="pay"]:checked')?.value || 'cod',
+    notes:            document.getElementById('fNotes').value.trim(),
+    items:            items.map(i => ({ product_id: i.id, quantity: i.qty }))
+  };
+
+  try {
+    const data = await api('/orders/', 'POST', body);
+    Cart.clear();
+    // Show inline step
+    document.getElementById('stepPayment').style.display = 'none';
+    document.getElementById('stepSuccess').style.display = '';
+    document.getElementById('orderNumDisplay').textContent = `Order #${data.order_number}`;
+    setStep(3);
+    // Show celebration modal
+    showOrderSuccessModal(data.order_number);
+  } catch(err) {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-check-circle"></i> Place Order';
+    Toast.show(err.message || 'Order failed. Try again.', 'error');
+  }
+}
+</script>
+
+<!-- ── Order Success Celebration Modal ──────────────────────────────── -->
+<div id="orderSuccessModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);z-index:9998;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--bg-card,#fff);border-radius:24px;max-width:460px;width:100%;padding:36px 28px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.3);position:relative;overflow:hidden;animation:modalPop .5s cubic-bezier(.34,1.56,.64,1) both;">
+    <div style="position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#4ade80,#22c55e,#86efac);"></div>
+
+    <!-- Confetti dots -->
+    <div class="confetti-wrap" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;" id="confettiWrap"></div>
+
+    <div style="width:80px;height:80px;background:linear-gradient(135deg,#4ade80,#16a34a);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 32px rgba(74,222,128,.4);animation:checkBounce .6s .2s both;">
+      <i class="fas fa-check" style="color:#fff;font-size:2rem;"></i>
+    </div>
+
+    <h2 style="font-size:1.6rem;font-weight:800;color:var(--c-forest,#16a34a);margin:0 0 8px;">Order Placed!</h2>
+    <p style="color:var(--text-sec,#666);margin:0 0 6px;font-size:.95rem;">Your fresh sabzi is on its way 🥬</p>
+    <p id="successOrderNum" style="font-family:monospace;font-size:.88rem;color:var(--text-muted,#999);margin:0 0 24px;"></p>
+
+    <div style="background:var(--bg-subtle,#f8faf8);border-radius:12px;padding:14px 16px;margin-bottom:22px;text-align:left;">
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;">
+        <i class="fas fa-envelope" style="color:var(--c-forest,#16a34a);width:16px;"></i>
+        <span style="font-size:.82rem;color:var(--text-sec,#666);">Confirmation email sent to your inbox</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <i class="fas fa-clock" style="color:var(--c-forest,#16a34a);width:16px;"></i>
+        <span style="font-size:.82rem;color:var(--text-sec,#666);">Estimated delivery: 30–60 minutes</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;">
+      <a href="/orders" class="btn btn-primary" style="flex:1;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;">
+        <i class="fas fa-receipt"></i> Track Order
+      </a>
+      <a href="/" class="btn btn-ghost" style="flex:1;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;">
+        Continue Shopping
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes modalPop {
+  from { opacity:0; transform:scale(.85) translateY(30px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+@keyframes checkBounce {
+  from { opacity:0; transform:scale(0); }
+  to   { opacity:1; transform:scale(1); }
+}
+@keyframes confettiFall {
+  0%   { transform:translateY(-20px) rotate(0deg); opacity:1; }
+  100% { transform:translateY(300px) rotate(720deg); opacity:0; }
+}
+</style>
+
+<script>
+function showOrderSuccessModal(orderNumber) {
+  const modal = document.getElementById('orderSuccessModal');
+  document.getElementById('successOrderNum').textContent = 'Order #' + orderNumber;
+  modal.style.display = 'flex';
+
+  // Confetti
+  const wrap = document.getElementById('confettiWrap');
+  const colors = ['#4ade80','#fbbf24','#60a5fa','#f87171','#a78bfa','#34d399'];
+  for (let i = 0; i < 40; i++) {
+    const dot = document.createElement('div');
+    const size = Math.random() * 8 + 4;
+    dot.style.cssText = `
+      position:absolute;
+      width:${size}px; height:${size}px;
+      background:${colors[Math.floor(Math.random() * colors.length)]};
+      border-radius:${Math.random() > .5 ? '50%' : '2px'};
+      left:${Math.random() * 100}%;
+      top:${Math.random() * 30}%;
+      animation:confettiFall ${1.5 + Math.random() * 2}s ${Math.random() * .8}s ease-in both;
+    `;
+    wrap.appendChild(dot);
+  }
+}
+</script>
+
+</body>
+</html>

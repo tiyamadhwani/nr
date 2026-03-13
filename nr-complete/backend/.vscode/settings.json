@@ -1,0 +1,5 @@
+{
+  "python.analysis.extraPaths": ["."],
+  "python.analysis.reportMissingImports": "none",
+  "python.analysis.reportMissingModuleSource": "none"
+}

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile – NR Sabji Mandi</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="src/images/favicon.png">
+  <link rel="stylesheet" href="src/css/variables.css">
+  <link rel="stylesheet" href="src/css/base.css">
+  <link rel="stylesheet" href="src/css/components.css">
+  <link rel="stylesheet" href="src/css/layout.css">
+  <link rel="stylesheet" href="src/css/pages.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<div style="background:linear-gradient(135deg,var(--c-leaf),var(--c-forest));padding:32px var(--space-xl);">
+  <div class="container">
+    <h1 style="font-size:1.9rem;color:#fff;">My Profile</h1>
+    <p style="color:rgba(255,255,255,.75);font-size:.9rem;">Manage your account, addresses and preferences</p>
+  </div>
+</div>
+
+<div class="profile-layout">
+  <!-- Sidebar -->
+  <div>
+    <div class="profile-sidebar-card">
+      <div class="profile-avatar-section">
+        <div class="profile-avatar"><i class="fas fa-user"></i></div>
+        <div class="profile-uname" id="sidebarName">Loading...</div>
+        <div class="profile-uemail" id="sidebarEmail">...</div>
+      </div>
+      <div class="profile-nav">
+        <button class="profile-nav-btn active" id="tnProfile" onclick="showTab('profile')">
+          <i class="fas fa-user-circle"></i> Profile Info
+        </button>
+        <button class="profile-nav-btn" id="tnAddresses" onclick="showTab('addresses')">
+          <i class="fas fa-map-marker-alt"></i> My Addresses
+        </button>
+        <button class="profile-nav-btn" id="tnOrders" onclick="showTab('orders')">
+          <i class="fas fa-receipt"></i> Recent Orders
+        </button>
+        <button class="profile-nav-btn danger" onclick="Auth.logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div>
+    <!-- Profile tab -->
+    <div id="tabProfile">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:28px;">
+        <h3 style="margin-bottom:22px;font-size:1.05rem;">Personal Information</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-input" id="pName" placeholder="Your name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" class="form-input" id="pPhone" placeholder="Mobile number" maxlength="10">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="pEmail" disabled style="opacity:.6;cursor:not-allowed;">
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">Email cannot be changed</div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--border);margin:22px 0;">
+        <h3 style="font-size:1rem;margin-bottom:16px;">Change Password</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">New Password</label>
+            <input type="password" class="form-input" id="pPass" placeholder="Leave blank to keep current">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" class="form-input" id="pPassConf" placeholder="Repeat new password">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveProfile()" style="min-width:180px;">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+      </div>
+    </div>
+
+    <!-- Addresses tab -->
+    <div id="tabAddresses" style="display:none;">
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:28px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
+          <h3 style="font-size:1.05rem;">Saved Addresses</h3>
+          <button class="btn btn-primary btn-sm" onclick="showAddAddrForm()">
+            <i class="fas fa-plus"></i> Add New
+          </button>
+        </div>
+        <div id="addrList"></div>
+        <div id="addAddrForm" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+          <h4 style="margin-bottom:16px;font-size:.95rem;">New Address</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Label</label>
+              <select class="form-input" id="aLabel"><option>Home</option><option>Work</option><option>Other</option></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Full Name *</label>
+              <input type="text" class="form-input" id="aName">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Phone *</label>
+              <input type="tel" class="form-input" id="aPhone" maxlength="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pincode *</label>
+              <input type="text" class="form-input" id="aPin" maxlength="6">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Street Address *</label>
+            <input type="text" class="form-input" id="aStreet" placeholder="House no., street, landmark">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Area *</label>
+              <input type="text" class="form-input" id="aArea">
+            </div>
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input type="text" class="form-input" id="aCity" value="Udaipur">
+            </div>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;font-size:.88rem;margin-bottom:16px;cursor:pointer;color:var(--text-sec);">
+            <input type="checkbox" id="aDefault" style="accent-color:var(--c-forest);"> Set as default address
+          </label>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-primary" onclick="saveAddr()" style="min-width:150px;">Save Address</button>
+            <button class="btn btn-ghost" onclick="document.getElementById('addAddrForm').style.display='none'">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders tab -->
+    <div id="tabOrders" style="display:none;">
+      <div id="recentOrdersWrap"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="cart-placeholder"></div>
+<div id="auth-modal-placeholder"></div>
+<div id="footer-placeholder"></div>
+
+<script src="src/js/partials.js"></script>
+<script src="src/js/app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if (!Auth.loggedIn()) { window.location.href = '/'; return; }
+  loadProfile();
+});
+
+async function loadProfile() {
+  try {
+    const data = await api('/auth/me');
+    document.getElementById('pName').value  = data.user.name;
+    document.getElementById('pPhone').value = data.user.phone;
+    document.getElementById('pEmail').value = data.user.email;
+    document.getElementById('sidebarName').textContent  = data.user.name;
+    document.getElementById('sidebarEmail').textContent = data.user.email;
+    renderAddresses(data.addresses || []);
+  } catch { Toast.show('Failed to load profile', 'error'); }
+}
+
+async function saveProfile() {
+  const name = document.getElementById('pName').value.trim();
+  const phone = document.getElementById('pPhone').value.trim();
+  const pass  = document.getElementById('pPass').value;
+  const conf  = document.getElementById('pPassConf').value;
+  if (pass && pass !== conf) { Toast.show('Passwords do not match', 'error'); return; }
+  try {
+    const body = { name, phone };
+    if (pass) body.password = pass;
+    await api('/auth/me', 'PUT', body);
+    const u = Auth.user();
+    Auth.save(Auth.token(), { ...u, name, phone });
+    Toast.show('Profile updated!');
+    document.getElementById('sidebarName').textContent = name;
+    document.getElementById('pPass').value = '';
+    document.getElementById('pPassConf').value = '';
+    Auth.updateNavUI();
+  } catch (err) { Toast.show(err.message, 'error'); }
+}
+
+function renderAddresses(addrs) {
+  const el = document.getElementById('addrList');
+  if (!addrs.length) {
+    el.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);">No addresses saved yet.</div>`;
+    return;
+  }
+  el.innerHTML = addrs.map(a => `
+    <div style="border:1.5px solid ${a.is_default?'var(--c-forest)':'var(--border)'};border-radius:var(--r-md);padding:16px;margin-bottom:12px;background:${a.is_default?'var(--c-dew)':'var(--bg-card)'};position:relative;">
+      ${a.is_default ? '<span class="badge badge-green" style="position:absolute;top:10px;right:12px;">Default</span>' : ''}
+      <div style="font-weight:700;font-size:.9rem;margin-bottom:4px;">
+        ${a.full_name}
+        <span class="badge badge-blue" style="margin-left:6px;font-size:.68rem;">${a.label}</span>
+      </div>
+      <div style="font-size:.84rem;color:var(--text-sec);">${a.phone}</div>
+      <div style="font-size:.84rem;color:var(--text-muted);margin-top:3px;">${a.street}, ${a.area}, ${a.city} – ${a.pincode}</div>
+      <button onclick="deleteAddr(${a.id})" class="btn btn-danger btn-sm" style="margin-top:10px;">
+        <i class="fas fa-trash-alt"></i> Delete
+      </button>
+    </div>`).join('');
+}
+
+function showAddAddrForm() { document.getElementById('addAddrForm').style.display = ''; }
+
+async function saveAddr() {
+  const body = {
+    label:      document.getElementById('aLabel').value,
+    full_name:  document.getElementById('aName').value.trim(),
+    phone:      document.getElementById('aPhone').value.trim(),
+    street:     document.getElementById('aStreet').value.trim(),
+    area:       document.getElementById('aArea').value.trim(),
+    city:       document.getElementById('aCity').value.trim(),
+    pincode:    document.getElementById('aPin').value.trim(),
+    is_default: document.getElementById('aDefault').checked,
+  };
+  if (!body.full_name||!body.phone||!body.street||!body.area||!body.pincode) {
+    Toast.show('Fill all required fields', 'error'); return;
+  }
+  try {
+    await api('/auth/addresses', 'POST', body);
+    Toast.show('Address saved!');
+    document.getElementById('addAddrForm').style.display = 'none';
+    loadProfile();
+  } catch (err) { Toast.show(err.message, 'error'); }
+}
+
+async function deleteAddr(id) {
+  if (!confirm('Delete this address?')) return;
+  try {
+    await api(`/auth/addresses/${id}`, 'DELETE');
+    Toast.show('Address deleted');
+    loadProfile();
+  } catch { Toast.show('Failed to delete', 'error'); }
+}
+
+function showTab(tab) {
+  ['Profile','Addresses','Orders'].forEach(t => {
+    const el = document.getElementById(`tab${t}`);
+    const btn = document.getElementById(`tn${t}`);
+    if (el)  el.style.display = 'none';
+    if (btn) { btn.classList.remove('active'); }
+  });
+  document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).style.display = '';
+  document.getElementById(`tn${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
+  if (tab === 'orders') loadRecentOrders();
+}
+
+async function loadRecentOrders() {
+  const el = document.getElementById('recentOrdersWrap');
+  try {
+    const data = await api('/customers/order-history?page=1');
+    if (!data.orders.length) {
+      el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);">No orders yet. <a href="/" style="color:var(--c-forest);font-weight:600;">Start shopping</a></div>`;
+      return;
+    }
+    el.innerHTML = `
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;">
+        <h3 style="font-size:1rem;margin-bottom:18px;">Recent Orders</h3>
+        ${data.orders.slice(0,5).map(o => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;">
+            <div>
+              <div style="font-weight:700;font-size:.9rem;">${o.order_number}</div>
+              <div style="font-size:.76rem;color:var(--text-muted);">${new Date(o.created_at).toLocaleDateString('en-IN')}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-weight:700;color:var(--c-forest);">Rs.${o.total_amount}</div>
+              <div style="font-size:.76rem;color:var(--text-muted);">${o.items?.length||0} item(s)</div>
+            </div>
+            <a href="/orders" class="btn btn-ghost btn-sm">View</a>
+          </div>`).join('')}
+        ${data.total > 5 ? `<a href="/orders" style="display:block;text-align:center;color:var(--c-forest);font-weight:600;margin-top:14px;font-size:.9rem;">View all ${data.total} orders →</a>` : ''}
+      </div>`;
+  } catch { el.innerHTML = `<div style="padding:20px;color:var(--text-muted);">Failed to load.</div>`; }
+}
+</script>
+</body>
+</html>

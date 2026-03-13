@@ -1,0 +1,112 @@
+/* ═══════════════════════════════════════════════════════════
+   NR SABJI MANDI — Design Tokens & Variables
+   ═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Baloo+2:wght@400;600;700&display=swap');
+
+:root {
+  /* ── Palette ─────────────────────────────────────────── */
+  --c-leaf:         #1b5e20;
+  --c-forest:       #2e7d32;
+  --c-moss:         #388e3c;
+  --c-sage:         #66bb6a;
+  --c-mint:         #a5d6a7;
+  --c-dew:          #e8f5e9;
+  --c-sprout:       #f1f8e9;
+
+  --c-saffron:      #e65100;
+  --c-turmeric:     #f57c00;
+  --c-marigold:     #ffa726;
+  --c-cream:        #fff8f0;
+
+  --c-tomato:       #c62828;
+  --c-blush:        #ffebee;
+
+  --c-sky:          #0277bd;
+  --c-ice:          #e3f2fd;
+
+  /* ── Light Mode ──────────────────────────────────────── */
+  --bg:             #fafcf7;
+  --bg-card:        #ffffff;
+  --bg-elevated:    #ffffff;
+  --bg-subtle:      #f4f9f1;
+  --bg-muted:       #eef4eb;
+
+  --text-head:      #0d2110;
+  --text-body:      #1a2e1c;
+  --text-sec:       #3d5e40;
+  --text-muted:     #7a9e7d;
+  --text-ghost:     #afc8b2;
+
+  --border:         #d6e8d8;
+  --border-strong:  #b8d4bb;
+
+  --shadow-xs:      0 1px 3px rgba(27,94,32,.06);
+  --shadow-sm:      0 2px 10px rgba(27,94,32,.09);
+  --shadow-md:      0 6px 24px rgba(27,94,32,.13);
+  --shadow-lg:      0 16px 48px rgba(27,94,32,.16);
+  --shadow-xl:      0 24px 80px rgba(27,94,32,.20);
+
+  /* ── Typography ──────────────────────────────────────── */
+  --font-display:   'Fraunces', Georgia, serif;
+  --font-body:      'Plus Jakarta Sans', sans-serif;
+  --font-hindi:     'Baloo 2', 'Noto Sans Devanagari', sans-serif;
+
+  /* ── Spacing ─────────────────────────────────────────── */
+  --space-xs:       4px;
+  --space-sm:       8px;
+  --space-md:       16px;
+  --space-lg:       24px;
+  --space-xl:       40px;
+  --space-2xl:      64px;
+
+  /* ── Radius ──────────────────────────────────────────── */
+  --r-xs:           6px;
+  --r-sm:           10px;
+  --r-md:           16px;
+  --r-lg:           24px;
+  --r-xl:           36px;
+  --r-full:         9999px;
+
+  /* ── Transitions ─────────────────────────────────────── */
+  --ease:           cubic-bezier(.4, 0, .2, 1);
+  --t-fast:         0.15s;
+  --t-base:         0.25s;
+  --t-slow:         0.4s;
+
+  /* ── Layout ──────────────────────────────────────────── */
+  --nav-h:          70px;
+  --sidebar-w:      260px;
+  --max-w:          1320px;
+
+  /* ── API ─────────────────────────────────────────────── */
+  --api-base:       'http://localhost:5000/api';
+}
+
+/* ── Dark Mode ───────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg:             #0c1a0e;
+  --bg-card:        #112114;
+  --bg-elevated:    #162a19;
+  --bg-subtle:      #1a2e1d;
+  --bg-muted:       #1e3521;
+
+  --text-head:      #e8f5e9;
+  --text-body:      #c8e6ca;
+  --text-sec:       #a5c8a7;
+  --text-muted:     #6a9e6d;
+  --text-ghost:     #3d6e40;
+
+  --border:         #1e3521;
+  --border-strong:  #2a4a2d;
+
+  --shadow-xs:      0 1px 3px rgba(0,0,0,.3);
+  --shadow-sm:      0 2px 10px rgba(0,0,0,.4);
+  --shadow-md:      0 6px 24px rgba(0,0,0,.5);
+  --shadow-lg:      0 16px 48px rgba(0,0,0,.6);
+  --shadow-xl:      0 24px 80px rgba(0,0,0,.7);
+
+  --c-dew:          #1a2e1d;
+  --c-sprout:       #112114;
+  --c-cream:        #1a1208;
+}

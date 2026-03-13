@@ -1,0 +1,9 @@
+{
+  "include": ["app", "run.py"],
+  "pythonVersion": "3.10",
+  "pythonPlatform": "All",
+  "venvPath": ".",
+  "venv": "venv",
+  "reportMissingImports": false,
+  "reportMissingModuleSource": false
+}

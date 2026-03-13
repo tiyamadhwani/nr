@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel – NR Sabji Mandi</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="/admin-panel/src/css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <!-- Socket.IO (optional – fails gracefully) -->
+  <script src="/socket.io/socket.io.js" onerror="console.warn('Socket.IO not available')"></script>
+</head>
+<body>
+
+<div class="admin-shell" id="adminShell" style="display:none">
+
+  <!-- ──────────────────────────────────────────
+       SIDEBAR
+  ────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-badge">NR</div>
+      <div class="brand-text">
+        <div class="name">NR Sabji Mandi</div>
+        <div class="sub">Admin Panel</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+
+      <div class="nav-item active" id="nav-dashboard" onclick="navigate('dashboard')">
+        <i class="fas fa-gauge-high"></i>
+        Dashboard
+      </div>
+
+      <div class="nav-item" id="nav-orders" onclick="navigate('orders')">
+        <i class="fas fa-receipt"></i>
+        Orders
+        <span class="nav-badge" id="orderNavBadge" style="display:none">0</span>
+      </div>
+
+      <div class="nav-item" id="nav-products" onclick="navigate('products')">
+        <i class="fas fa-seedling"></i>
+        Products
+      </div>
+
+      <div class="nav-item" id="nav-customers" onclick="navigate('customers')">
+        <i class="fas fa-users"></i>
+        Customers
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px;">Reports</div>
+
+      <div class="nav-item" id="nav-analytics" onclick="navigate('analytics')">
+        <i class="fas fa-chart-line"></i>
+        Analytics
+      </div>
+
+      <div class="nav-section-label" style="margin-top:8px;">Links</div>
+
+      <a class="nav-item" href="../index.html" target="_blank">
+        <i class="fas fa-store"></i>
+        Customer Site
+        <i class="fas fa-arrow-up-right-from-square" style="margin-left:auto;font-size:.65rem;opacity:.5;"></i>
+      </a>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="nav-item" onclick="AdminAuth.logout()">
+        <i class="fas fa-right-from-bracket"></i>
+        Logout
+      </div>
+    </div>
+  </aside>
+
+  <!-- ──────────────────────────────────────────
+       TOPBAR
+  ────────────────────────────────────────── -->
+  <header class="topbar">
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+
+    <div class="live-dot">Live</div>
+
+    <div class="topbar-actions" style="position:relative;">
+      <button class="notif-btn" onclick="Notifications.togglePanel()" title="Notifications">
+        <i class="fas fa-bell"></i>
+        <span class="notif-dot" id="notifDot" style="display:none;"></span>
+      </button>
+
+      <!-- Notification Panel -->
+      <div class="notif-panel" id="notifPanel">
+        <div class="notif-head">
+          <span>Notifications</span>
+          <button class="btn btn-ghost btn-sm" onclick="Notifications.markAllRead()">Mark all read</button>
+        </div>
+        <div class="notif-list" id="notifList">
+          <div class="empty-state"><div class="empty-icon">🔔</div><p>No notifications yet</p></div>
+        </div>
+      </div>
+
+      <div class="topbar-user" id="topbarUser">
+        <div class="topbar-avatar" id="topbarAvatar">A</div>
+        <span class="topbar-uname" id="topbarUname">Admin</span>
+        <i class="fas fa-chevron-down" style="font-size:.6rem;color:var(--text-4);margin-left:3px;"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- ──────────────────────────────────────────
+       MAIN
+  ────────────────────────────────────────── -->
+  <main class="main-area">
+
+    <!-- ══════════════ DASHBOARD ══════════════ -->
+    <div class="page-section active" id="sec-dashboard">
+
+      <!-- Stat cards -->
+      <div class="stats-grid">
+        <div class="stat-card" style="--stat-color:var(--green);animation-delay:.05s">
+          <i class="fas fa-receipt stat-icon"></i>
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value" id="dTotalOrders">—</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card" style="--stat-color:var(--amber);animation-delay:.1s">
+          <i class="fas fa-indian-rupee-sign stat-icon"></i>
+          <div class="stat-label">Today's Revenue</div>
+          <div class="stat-value" id="dTodaySales">—</div>
+          <div class="stat-sub">From delivered orders</div>
+        </div>
+        <div class="stat-card" style="--stat-color:var(--red);animation-delay:.15s">
+          <i class="fas fa-clock stat-icon"></i>
+          <div class="stat-label">Pending Orders</div>
+          <div class="stat-value" id="dPendingOrders">—</div>
+          <div class="stat-sub">Need action</div>
+        </div>
+        <div class="stat-card" style="--stat-color:var(--blue);animation-delay:.2s">
+          <i class="fas fa-users stat-icon"></i>
+          <div class="stat-label">Total Customers</div>
+          <div class="stat-value" id="dTotalCustomers">—</div>
+          <div class="stat-sub">Registered accounts</div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div class="grid-2">
+        <div class="panel" style="animation-delay:.25s">
+          <div class="panel-head">
+            <h3>Weekly Sales</h3>
+            <span class="live-dot">Auto-refresh</span>
+          </div>
+          <div class="panel-body">
+            <div class="chart-wrap"><canvas id="weeklySalesChart"></canvas></div>
+          </div>
+        </div>
+        <div class="panel" style="animation-delay:.3s">
+          <div class="panel-head"><h3>Peak Order Hours</h3></div>
+          <div class="panel-body">
+            <div class="chart-wrap"><canvas id="peakHoursChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent orders -->
+      <div class="panel" style="animation-delay:.35s">
+        <div class="panel-head">
+          <h3>Recent Orders</h3>
+          <button class="btn btn-ghost btn-sm" onclick="navigate('orders')">View All <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Time</th>
+                <th>Update Status</th>
+              </tr>
+            </thead>
+            <tbody id="recentOrdersTbody">
+              <tr><td colspan="6"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /dashboard -->
+
+
+    <!-- ══════════════ ORDERS ══════════════ -->
+    <div class="page-section" id="sec-orders">
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>All Orders</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <select class="form-input" id="orderStatusFilter" style="width:auto;font-size:.82rem;padding:7px 30px 7px 10px" onchange="loadOrders(1, this.value)">
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="preparing">Preparing</option>
+              <option value="out_for_delivery">Out for Delivery</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="loadOrders(1, document.getElementById('orderStatusFilter').value)">
+              <i class="fas fa-rotate"></i> Refresh
+            </button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Area</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Time</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTbody">
+              <tr><td colspan="7"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:12px 16px;" id="ordersPagination"></div>
+      </div>
+
+    </div><!-- /orders -->
+
+
+    <!-- ══════════════ PRODUCTS ══════════════ -->
+    <div class="page-section" id="sec-products">
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Product Catalogue</h3>
+          <div style="display:flex;gap:8px;">
+            <div class="table-search">
+              <i class="fas fa-search"></i>
+              <input type="text" placeholder="Search products..." id="productSearch"
+                     oninput="filterProductsLocal(this.value)">
+            </div>
+            <button class="btn btn-green" onclick="openAddProduct()">
+              <i class="fas fa-plus"></i> Add Product
+            </button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Available</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productsTbody">
+              <tr><td colspan="7"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:12px 16px;" id="productsPagination"></div>
+      </div>
+
+    </div><!-- /products -->
+
+
+    <!-- ══════════════ CUSTOMERS ══════════════ -->
+    <div class="page-section" id="sec-customers">
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Customers</h3>
+          <div class="table-search" style="min-width:260px;">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search by name, email, phone..."
+                   oninput="clearTimeout(window._ct); window._ct = setTimeout(() => loadCustomers(1, this.value), 400)">
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Total Spent</th>
+                <th>Joined</th>
+                <th>Active</th>
+              </tr>
+            </thead>
+            <tbody id="customersTbody">
+              <tr><td colspan="6"><div class="spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:12px 16px;" id="customersPagination"></div>
+      </div>
+
+    </div><!-- /customers -->
+
+
+    <!-- ══════════════ ANALYTICS ══════════════ -->
+    <div class="page-section" id="sec-analytics">
+
+      <!-- Period selector -->
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <h2 style="font-size:1rem;font-weight:700;">Analytics &amp; Reports</h2>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <label style="font-size:.78rem;color:var(--text-3);font-family:var(--font-mono);">Period:</label>
+          <select class="form-input" id="analyticsDays" style="width:auto;font-size:.82rem;" onchange="loadDailySalesAnalytics()">
+            <option value="7">Last 7 days</option>
+            <option value="14">Last 14 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Summary stat cards -->
+      <div class="stats-grid">
+        <div class="stat-card" style="--stat-color:var(--green)">
+          <i class="fas fa-indian-rupee-sign stat-icon"></i>
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value" id="anTotalRev">—</div>
+        </div>
+        <div class="stat-card" style="--stat-color:var(--blue)">
+          <i class="fas fa-receipt stat-icon"></i>
+          <div class="stat-label">Total Orders</div>
+          <div class="stat-value" id="anTotalOrders">—</div>
+        </div>
+        <div class="stat-card" style="--stat-color:var(--amber)">
+          <i class="fas fa-basket-shopping stat-icon"></i>
+          <div class="stat-label">Avg Order Value</div>
+          <div class="stat-value" id="anAvgOrder">—</div>
+        </div>
+        <div class="stat-card" style="--stat-color:var(--purple)">
+          <i class="fas fa-trophy stat-icon"></i>
+          <div class="stat-label">Best Day Revenue</div>
+          <div class="stat-value" id="anBestDay">—</div>
+        </div>
+      </div>
+
+      <!-- Revenue chart -->
+      <div class="panel">
+        <div class="panel-head"><h3>Daily Revenue Trend</h3></div>
+        <div class="panel-body">
+          <div class="chart-wrap" style="height:260px;"><canvas id="analyticsSalesChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Orders chart -->
+      <div class="panel">
+        <div class="panel-head"><h3>Daily Orders Count</h3></div>
+        <div class="panel-body">
+          <div class="chart-wrap" style="height:220px;"><canvas id="analyticsOrdersChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Product demand + Failed searches -->
+      <div class="grid-2">
+
+        <!-- Product demand -->
+        <div class="panel">
+          <div class="panel-head"><h3>Top Product Demand</h3></div>
+          <div class="panel-body">
+            <div class="chart-wrap" style="height:200px;margin-bottom:16px;"><canvas id="demandDonutChart"></canvas></div>
+            <div style="overflow-x:auto;">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Product</th><th>Qty Sold</th><th>Revenue</th><th>Orders</th></tr>
+                </thead>
+                <tbody id="demandTableTbody">
+                  <tr><td colspan="4"><div class="spinner"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Failed searches -->
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Failed Searches</h3>
+            <span class="badge badge-amber">Items customers couldn't find</span>
+          </div>
+          <div class="panel-body" style="padding:0;">
+            <table class="data-table">
+              <thead>
+                <tr><th>Search Query</th><th>Count</th><th>Demand</th><th>Action</th></tr>
+              </thead>
+              <tbody id="failedSearchesTbody">
+                <tr><td colspan="4"><div class="spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div><!-- /grid-2 -->
+
+      <!-- ── AI Prediction Section ── -->
+      <div class="panel" style="border:1px solid rgba(251,191,36,.25);background:linear-gradient(135deg,var(--bg-card) 0%,rgba(251,191,36,.03) 100%);">
+        <div class="panel-head" style="border-bottom:1px solid rgba(251,191,36,.15);">
+          <h3 style="display:flex;align-items:center;gap:8px;">
+            <span style="background:rgba(251,191,36,.15);color:#fbbf24;padding:4px 8px;border-radius:6px;font-size:.7rem;font-weight:700;letter-spacing:.05em;">AI</span>
+            7-Day Forecast & Predictions
+          </h3>
+          <span id="predictionConfidence" style="font-size:.72rem;color:var(--text-3);font-family:var(--font-mono);"></span>
+        </div>
+        <div class="panel-body">
+          <div id="predictionSummary" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;"></div>
+          <div class="grid-2" style="gap:16px;">
+            <div>
+              <div style="font-size:.78rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Orders Forecast – Next 7 Days</div>
+              <div class="chart-wrap" style="height:180px;"><canvas id="predictionChart"></canvas></div>
+            </div>
+            <div>
+              <div style="font-size:.78rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Top Products This Week</div>
+              <div id="topPredictedList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /analytics -->
+
+  </main><!-- /main-area -->
+
+</div><!-- /admin-shell -->
+
+
+<!-- ══════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════ -->
+
+<!-- Order detail modal -->
+<div class="modal-overlay" id="orderDetailModal">
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <h3 id="orderDetailTitle">Order Detail</h3>
+      <button class="modal-close" onclick="closeModal('orderDetailModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="orderDetailBody"></div>
+    <div style="margin-top:18px;text-align:right;">
+      <button class="btn btn-outline" onclick="closeModal('orderDetailModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Product modal -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <h3 id="productModalTitle">Add Product</h3>
+      <button class="modal-close" onclick="closeModal('productModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="productForm" onsubmit="event.preventDefault();saveProduct();">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Product Name (English) *</label>
+          <input type="text" class="form-input" id="pName" placeholder="e.g. Tomato" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Name in Hindi</label>
+          <input type="text" class="form-input" id="pNameHi" placeholder="e.g. टमाटर">
+        </div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label class="form-label">Category *</label>
+          <select class="form-input" id="pCategory">
+            <option value="vegetable">Vegetable</option>
+            <option value="fruit">Fruit</option>
+            <option value="leafy">Leafy Green</option>
+            <option value="seasonal">Seasonal</option>
+            <option value="exotic">Exotic</option>
+            <option value="herb">Herb / Spice</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Price (Rs.) *</label>
+          <input type="number" class="form-input" id="pPrice" placeholder="40" min="1" step="0.5" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unit</label>
+          <select class="form-input" id="pUnit">
+            <option value="kg">kg</option>
+            <option value="g">grams</option>
+            <option value="piece">piece</option>
+            <option value="dozen">dozen</option>
+            <option value="bunch">bunch</option>
+            <option value="litre">litre</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Stock Quantity</label>
+          <input type="number" class="form-input" id="pStock" placeholder="100" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Image URL</label>
+          <input type="url" class="form-input" id="pImageUrl" placeholder="https://...">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-input" id="pDescription" rows="3" placeholder="Short description for customers..."></textarea>
+      </div>
+      <div style="display:flex;gap:24px;margin-bottom:18px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem;color:var(--text-2);">
+          <input type="checkbox" id="pAvailable" checked style="accent-color:var(--green);width:16px;height:16px;">
+          Available for ordering
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.85rem;color:var(--text-2);">
+          <input type="checkbox" id="pFeatured" style="accent-color:var(--amber);width:16px;height:16px;">
+          Featured product
+        </label>
+      </div>
+      <div id="pImagePreview" style="margin-bottom:14px;"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button type="button" class="btn btn-outline" onclick="closeModal('productModal')">Cancel</button>
+        <button type="submit" class="btn btn-green btn-lg" id="saveProductBtn">
+          <i class="fas fa-save"></i> Save Product
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════ -->
+<script src="/admin-panel/src/js/admin-core.js"></script>
+<script src="/admin-panel/src/js/admin-sections.js"></script>
+<script>
+/* ── Init ──────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  if (!AdminAuth.loggedIn()) {
+    location.href = 'login.html'; return;
+  }
+
+  // Show admin shell
+  document.getElementById('adminShell').style.display = '';
+
+  // Set user info in topbar
+  const u = AdminAuth.user();
+  if (u) {
+    document.getElementById('topbarUname').textContent  = u.name?.split(' ')[0] || 'Admin';
+    document.getElementById('topbarAvatar').textContent = (u.name || 'A')[0].toUpperCase();
+  }
+
+  // Init notifications & socket
+  Notifications.init();
+
+  // Load dashboard
+  navigate('dashboard');
+
+  // Close notif panel on outside click
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.notif-btn') && !e.target.closest('#notifPanel')) {
+      document.getElementById('notifPanel')?.classList.remove('open');
+    }
+  });
+
+  // Image preview in product form
+  document.getElementById('pImageUrl')?.addEventListener('input', function() {
+    const prev = document.getElementById('pImagePreview');
+    if (this.value) {
+      prev.innerHTML = `<img src="${this.value}" alt="preview" style="max-height:100px;border-radius:var(--r);border:1px solid var(--border);" onerror="this.style.display='none'">`;
+    } else {
+      prev.innerHTML = '';
+    }
+  });
+});
+
+/* ── Local product search ──────────────────── */
+function filterProductsLocal(q) {
+  const rows = document.querySelectorAll('#productsTbody tr');
+  q = q.toLowerCase();
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = q ? (text.includes(q) ? '' : 'none') : '';
+  });
+}
+</script>
+</body>
+</html>

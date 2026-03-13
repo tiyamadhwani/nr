@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders – NR Sabji Mandi</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="src/images/favicon.png">
+  <link rel="stylesheet" href="src/css/variables.css">
+  <link rel="stylesheet" href="src/css/base.css">
+  <link rel="stylesheet" href="src/css/components.css">
+  <link rel="stylesheet" href="src/css/layout.css">
+  <link rel="stylesheet" href="src/css/pages.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<div id="navbar-placeholder"></div>
+
+<div style="background:linear-gradient(135deg,var(--c-leaf),var(--c-forest));padding:32px var(--space-xl);">
+  <div class="container">
+    <nav style="font-size:.82rem;color:rgba(255,255,255,.7);margin-bottom:8px;">
+      <a href="/" style="color:rgba(255,255,255,.7);">Home</a> › My Orders
+    </nav>
+    <h1 style="font-size:1.9rem;color:#fff;margin-bottom:4px;">My Orders</h1>
+    <p style="color:rgba(255,255,255,.75);font-size:.9rem;">Track all your NR Sabji Mandi orders</p>
+  </div>
+</div>
+
+<div class="container" style="padding-top:36px;padding-bottom:60px;max-width:900px;">
+  <div id="ordersWrap"><div class="spinner"></div></div>
+</div>
+
+<!-- Order detail modal -->
+<div class="modal-overlay" id="orderDetailModal">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <div><h3 id="modalOrderNum">Order Details</h3></div>
+      <button class="modal-close" onclick="closeModal('orderDetailModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<div id="cart-placeholder"></div>
+<div id="auth-modal-placeholder"></div>
+<div id="footer-placeholder"></div>
+
+<script src="src/js/partials.js"></script>
+<script src="src/js/app.js"></script>
+<script>
+const STATUS = {
+  pending:          { label:'Order Placed',     color:'#f57c00', bg:'#fff3e0', icon:'fas fa-clock' },
+  confirmed:        { label:'Confirmed',        color:'#1976d2', bg:'#e3f2fd', icon:'fas fa-check' },
+  preparing:        { label:'Being Prepared',   color:'#7b1fa2', bg:'#f3e5f5', icon:'fas fa-mortar-pestle' },
+  out_for_delivery: { label:'Out for Delivery', color:'#00695c', bg:'#e0f2f1', icon:'fas fa-motorcycle' },
+  delivered:        { label:'Delivered',        color:'#2e7d32', bg:'#e8f5e9', icon:'fas fa-check-circle' },
+  cancelled:        { label:'Cancelled',        color:'#c62828', bg:'#ffebee', icon:'fas fa-times-circle' },
+};
+const STATUS_STEPS = ['pending','confirmed','preparing','out_for_delivery','delivered'];
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (!Auth.loggedIn()) {
+    document.getElementById('ordersWrap').innerHTML = `
+      <div style="text-align:center;padding:80px 0;">
+        <div style="font-size:3rem;margin-bottom:16px;">🔒</div>
+        <h3 style="margin-bottom:10px;">Sign in to view your orders</h3>
+        <a href="/" class="btn btn-primary" style="margin-top:10px;">Go to Home</a>
+      </div>`;
+    return;
+  }
+  loadOrders();
+});
+
+async function loadOrders(page = 1) {
+  try {
+    const data = await api(`/customers/order-history?page=${page}`);
+    renderOrders(data);
+  } catch {
+    document.getElementById('ordersWrap').innerHTML =
+      `<div style="text-align:center;padding:40px;color:var(--text-muted);">Failed to load orders. <button onclick="loadOrders()" style="color:var(--c-forest);font-weight:600;background:none;border:none;cursor:pointer;">Retry</button></div>`;
+  }
+}
+
+function renderOrders({ orders, total, pages }) {
+  const wrap = document.getElementById('ordersWrap');
+  if (!orders.length) {
+    wrap.innerHTML = `
+      <div style="text-align:center;padding:80px 0;">
+        <div style="font-size:4rem;margin-bottom:20px;opacity:.5;">📦</div>
+        <h3 style="margin-bottom:10px;">No Orders Yet</h3>
+        <p style="color:var(--text-muted);margin-bottom:24px;">You haven't placed any orders. Start shopping for fresh vegetables!</p>
+        <a href="/" class="btn btn-primary btn-lg">Shop Now</a>
+      </div>`;
+    return;
+  }
+
+  wrap.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+      <h2 style="font-size:1.1rem;color:var(--text-sec);">${total} order${total!==1?'s':''}</h2>
+    </div>
+    ${orders.map(o => orderCard(o)).join('')}
+    ${pages > 1 ? pagination(pages) : ''}
+  `;
+}
+
+function orderCard(o) {
+  const s      = STATUS[o.status] || STATUS.pending;
+  const active = ['pending','confirmed','preparing','out_for_delivery'].includes(o.status);
+  const stepIdx = STATUS_STEPS.indexOf(o.status);
+
+  const trackHtml = active ? `
+    <div class="status-track">
+      ${STATUS_STEPS.map((step, i) => `
+        <div class="track-step">
+          <div>
+            <div class="track-dot ${i < stepIdx ? 'done' : i===stepIdx ? 'active' : ''}">
+              ${i < stepIdx ? '<i class="fas fa-check" style="font-size:.55rem;"></i>' : i+1}
+            </div>
+            <div class="track-label">${STATUS[step]?.label||step}</div>
+          </div>
+          ${i < STATUS_STEPS.length - 1 ? `<div class="track-line ${i < stepIdx ? 'done' : ''}"></div>` : ''}
+        </div>`).join('')}
+    </div>` : '';
+
+  const itemsPreview = o.items
+    ? o.items.slice(0,3).map(i=>`${i.product_name} (${i.quantity}${i.unit})`).join(', ')
+      + (o.items.length > 3 ? ` +${o.items.length-3} more` : '')
+    : '';
+
+  return `
+  <div class="order-card">
+    <div class="order-card-head">
+      <div>
+        <div class="order-num">${o.order_number}</div>
+        <div class="order-date">${new Date(o.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <span style="background:${s.bg};color:${s.color};padding:5px 12px;border-radius:var(--r-full);font-size:.78rem;font-weight:700;">
+          <i class="${s.icon}"></i> ${s.label}
+        </span>
+        <span style="font-size:1rem;font-weight:800;color:var(--text-head);">Rs.${o.total_amount}</span>
+      </div>
+    </div>
+    <div class="order-card-body">
+      <div class="order-items-preview">${itemsPreview}</div>
+      <div style="font-size:.8rem;color:var(--text-muted);">
+        <i class="fas fa-credit-card" style="margin-right:4px;"></i>${o.payment_method?.toUpperCase()}
+        &nbsp;•&nbsp;
+        <i class="fas fa-box" style="margin-right:4px;"></i>${o.items?.length||0} item(s)
+      </div>
+    </div>
+    ${trackHtml}
+    <div class="order-card-foot">
+      <button class="btn btn-ghost btn-sm" onclick="viewOrderDetail(${JSON.stringify(o).replace(/"/g,'&quot;')})">
+        <i class="fas fa-eye"></i> View Details
+      </button>
+      <button class="btn btn-primary btn-sm" onclick="reorder(${JSON.stringify(o.items||[]).replace(/"/g,'&quot;')})">
+        <i class="fas fa-redo"></i> Reorder
+      </button>
+    </div>
+  </div>`;
+}
+
+function pagination(pages) {
+  return `<div style="display:flex;gap:8px;justify-content:center;margin-top:24px;">
+    ${Array.from({length:pages},(_,i)=>i+1).map(p=>`
+      <button onclick="loadOrders(${p})"
+              class="btn ${p===1?'btn-primary':'btn-ghost'}"
+              style="width:38px;height:38px;padding:0;min-width:38px;">${p}</button>`).join('')}
+  </div>`;
+}
+
+function viewOrderDetail(o) {
+  const s = STATUS[o.status] || STATUS.pending;
+  document.getElementById('modalOrderNum').textContent = o.order_number;
+  document.getElementById('modalContent').innerHTML = `
+    <div style="margin-bottom:16px;">
+      <span style="background:${s.bg};color:${s.color};padding:6px 14px;border-radius:var(--r-full);font-size:.82rem;font-weight:700;"><i class="${s.icon}"></i> ${s.label}</span>
+    </div>
+    <div style="background:var(--bg-subtle);border-radius:var(--r-sm);padding:14px;margin-bottom:16px;">
+      <div style="font-weight:700;font-size:.85rem;margin-bottom:6px;color:var(--text-sec);">Delivery Address</div>
+      <div style="font-size:.88rem;">${o.delivery_name} &nbsp;|&nbsp; ${o.delivery_phone}</div>
+      <div style="font-size:.85rem;color:var(--text-sec);margin-top:3px;">${o.delivery_street}, ${o.delivery_area}, ${o.delivery_city} – ${o.delivery_pincode}</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:.86rem;margin-bottom:16px;">
+      <thead>
+        <tr style="background:var(--bg-subtle);">
+          <th style="padding:9px 10px;text-align:left;border:1px solid var(--border);color:var(--text-sec);">Item</th>
+          <th style="padding:9px 10px;text-align:center;border:1px solid var(--border);color:var(--text-sec);">Qty</th>
+          <th style="padding:9px 10px;text-align:center;border:1px solid var(--border);color:var(--text-sec);">Rate</th>
+          <th style="padding:9px 10px;text-align:right;border:1px solid var(--border);color:var(--text-sec);">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${(o.items||[]).map(i=>`
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:9px 10px;border:1px solid var(--border);">${i.product_name}</td>
+            <td style="padding:9px 10px;text-align:center;border:1px solid var(--border);">${i.quantity} ${i.unit}</td>
+            <td style="padding:9px 10px;text-align:center;border:1px solid var(--border);">Rs.${i.unit_price}</td>
+            <td style="padding:9px 10px;text-align:right;font-weight:700;border:1px solid var(--border);color:var(--c-forest);">Rs.${i.total_price}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="border-top:2px solid var(--border);padding-top:12px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.88rem;color:var(--text-sec);"><span>Subtotal</span><span>Rs.${o.subtotal}</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.88rem;color:var(--text-sec);"><span>Delivery</span><span>${o.delivery_charge===0?'FREE':'Rs.'+o.delivery_charge}</span></div>
+      <div style="display:flex;justify-content:space-between;font-weight:800;font-size:1.05rem;color:var(--text-head);"><span>Total Paid</span><span>Rs.${o.total_amount}</span></div>
+    </div>
+    <div style="margin-top:12px;font-size:.8rem;color:var(--text-muted);">Payment: ${(o.payment_method||'').toUpperCase()} &nbsp;|&nbsp; Status: ${(o.payment_status||'').toUpperCase()}</div>`;
+  openModal('orderDetailModal');
+}
+
+function reorder(items) {
+  items.forEach(i => Cart.add({ id: i.product_id, name: i.product_name, price_per_unit: i.unit_price, unit: i.unit, image_url: null }, i.quantity));
+  CartDrawer.open();
+}
+</script>
+</body>
+</html>

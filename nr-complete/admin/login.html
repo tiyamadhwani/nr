@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login – NR Sabji Mandi</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="/admin-panel/src/css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<div class="login-page">
+  <div style="position:fixed;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(74,222,128,.03) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(74,222,128,.03) 40px);pointer-events:none;z-index:0;"></div>
+
+  <div class="login-card" style="position:relative;z-index:1;">
+
+    <div class="login-logo">
+      <div class="login-badge">NR</div>
+      <div class="login-logo-text">
+        <div class="name">NR Sabji Mandi</div>
+        <div class="sub">Admin Console</div>
+      </div>
+    </div>
+
+    <h2 class="login-title">Welcome back</h2>
+    <p class="login-sub">Sign in to manage your store</p>
+
+    <div id="loginError" style="display:none;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:10px 14px;font-size:.84rem;color:#f87171;margin-bottom:16px;"></div>
+
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input type="email" class="form-input" id="loginEmail" placeholder="admin@nrsabjimandi.com" autofocus>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div style="position:relative;">
+        <input type="password" class="form-input" id="loginPassword" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter') doLogin()">
+        <button type="button" onclick="togglePwd()"
+                style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#888;font-size:.85rem;cursor:pointer;"
+                id="pwdEye">
+          <i class="fas fa-eye"></i>
+        </button>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-green btn-full btn-lg" id="loginBtn"
+            onclick="doLogin()" style="margin-top:6px;">
+      <i class="fas fa-arrow-right-to-bracket"></i>
+      Sign In to Admin Panel
+    </button>
+
+    <div style="margin-top:24px;padding:14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;font-size:.76rem;font-family:monospace;color:var(--text-3);">
+      <div style="color:var(--text-4);margin-bottom:4px;font-weight:700;">DEFAULT CREDENTIALS</div>
+      <div>Email: admin@nrsabjimandi.com</div>
+      <div>Password: Admin@123</div>
+    </div>
+
+    <div style="margin-top:16px;text-align:center;">
+      <a href="/" style="font-size:.78rem;color:var(--text-3);font-family:monospace;">
+        <i class="fas fa-arrow-left"></i> Back to Customer Site
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script src="/admin-panel/src/js/admin-core.js"></script>
+<script>
+  // If already logged in, go straight to dashboard
+  document.addEventListener('DOMContentLoaded', function() {
+    if (AdminAuth.loggedIn()) {
+      window.location.href = '/admin-panel';
+    }
+  });
+
+  async function doLogin() {
+    var email    = document.getElementById('loginEmail').value.trim();
+    var password = document.getElementById('loginPassword').value;
+    var btn      = document.getElementById('loginBtn');
+    var errEl    = document.getElementById('loginError');
+
+    if (!email || !password) {
+      showErr('Please enter your email and password.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+    errEl.style.display = 'none';
+
+    try {
+      var data = await api('/admin/login', 'POST', { email: email, password: password });
+      AdminAuth.save(data.token, data.user);
+      btn.innerHTML = '<i class="fas fa-check"></i> Success!';
+      setTimeout(function() {
+        window.location.href = '/admin-panel';
+      }, 600);
+    } catch(err) {
+      showErr(err.message || 'Invalid credentials. Please try again.');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Sign In to Admin Panel';
+    }
+  }
+
+  function showErr(msg) {
+    var el = document.getElementById('loginError');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function togglePwd() {
+    var inp = document.getElementById('loginPassword');
+    var eye = document.getElementById('pwdEye');
+    if (inp.type === 'password') {
+      inp.type = 'text';
+      eye.innerHTML = '<i class="fas fa-eye-slash"></i>';
+    } else {
+      inp.type = 'password';
+      eye.innerHTML = '<i class="fas fa-eye"></i>';
+    }
+  }
+</script>
+</body>
+</html>
