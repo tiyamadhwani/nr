@@ -5,10 +5,7 @@
 
 'use strict';
 
-const API_BASE =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000/api"
-    : "https://nr-cjcp.onrender.com/api";
+const API_BASE = '/api';
 
 /* ─────────────────────────────────────────────────────────
    THEME
@@ -85,30 +82,13 @@ const Auth = {
 /* ─────────────────────────────────────────────────────────
    API HELPER
 ───────────────────────────────────────────────────────── */
-
-
-async function api(endpoint, method = "GET", data = null) {
-  const options = {
-    method,
-    headers: {
-      "Content-Type": "application/json",
-      ...(Auth.token() ? { Authorization: `Bearer ${Auth.token()}` } : {})
-    }
-  };
-
-  if (data) options.body = JSON.stringify(data);
-
-    const res = await fetch(`${API_BASE}${endpoint}`, options);
-  if (!res.ok) {
-    let msg = `API error ${res.status}`;
-    try {
-      const err = await res.json();
-      msg = err.message || msg;
-    } catch {}
-    throw new Error(msg);
-  }
-
-  return res.json();
+async function api(endpoint, method = 'GET', body = null) {
+  const opts = { method, headers: Auth.headers() };
+  if (body) opts.body = JSON.stringify(body);
+  const res  = await fetch(`${API_BASE}${endpoint}`, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+  return data;
 }
 
 /* ─────────────────────────────────────────────────────────

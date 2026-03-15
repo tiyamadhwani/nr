@@ -5,8 +5,8 @@
 
 'use strict';
 
-const API = 'http://localhost:5000/api';
-const WS  = 'http://localhost:5000';
+const API = '/api';
+const WS  = window.location.origin;
 
 /* ─────────────────────────────────────────────────────────
    AUTH

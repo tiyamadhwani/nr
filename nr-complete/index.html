@@ -341,7 +341,7 @@ async function loadProducts(cat = 'all') {
 
   try {
     const params = cat !== 'all' ? `?category=${cat}&available=true` : '?available=true';
-    const data   = await api(`/products/${params}`);
+    const data = await api(`/products${params}`);
     pageProducts  = data.products;
     renderGrid(pageProducts);
     document.getElementById('prodCount').textContent = `Showing ${data.products.length} of ${data.total} products`;

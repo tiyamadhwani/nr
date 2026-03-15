@@ -13,7 +13,7 @@
 
 'use strict';
 
-const APP_VERSION  = 'v1.0.0';
+const APP_VERSION = "v1.0.1";
 const CACHE_STATIC = `nr-static-${APP_VERSION}`;
 const CACHE_PAGES  = `nr-pages-${APP_VERSION}`;
 const CACHE_IMAGES = `nr-images-${APP_VERSION}`;
@@ -38,8 +38,7 @@ const PRECACHE_URLS = [
 ];
 
 // API paths — always network first
-const API_PATTERNS = ['/api/', 'nr-cjcp.onrender.com'];
-
+const API_PATTERNS = ['/api/'];
 
 // ──────────────────────────────────────────────────────────
 // INSTALL — precache app shell

@@ -20,30 +20,51 @@ socketio = SocketIO()
 def create_app():
     app = Flask(__name__)
 
-    app.config["SECRET_KEY"] = "dev-secret"
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///nr_sabji_mandi.db")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["JWT_SECRET_KEY"] = "jwt-secret"
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "jwt-secret")
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 86400
 
-    CORS(app)
+    app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER", "smtp.gmail.com")
+    app.config["MAIL_PORT"] = int(os.getenv("MAIL_PORT", 587))
+    app.config["MAIL_USE_TLS"] = os.getenv("MAIL_USE_TLS", "True") == "True"
+    app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
+    app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
+    app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_DEFAULT_SENDER")
 
     db.init_app(app)
+    migrate.init_app(app, db)
     jwt.init_app(app)
-    socketio.init_app(app)
+    mail.init_app(app)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    socketio.init_app(app, cors_allowed_origins="*", async_mode="threading")
 
-    # ───── IMPORT BLUEPRINTS ─────
-    from app.routes.products import products_bp
     from app.routes.auth import auth_bp
-    from app.routes.search import search_bp
+    from app.routes.products import products_bp
+    from app.routes.orders import orders_bp
+    from app.routes.admin import admin_bp
+    from app.routes.analytics import analytics_bp
     from app.routes.chatbot import chatbot_bp
+    from app.routes.search import search_bp
+    from app.routes.customers import customers_bp
 
-    # ───── REGISTER WITH /api PREFIX ─────
-    app.register_blueprint(products_bp, url_prefix="/api/products")
-    app.register_blueprint(auth_bp, url_prefix="/api/auth")
-    app.register_blueprint(search_bp, url_prefix="/api/search")
-    app.register_blueprint(chatbot_bp, url_prefix="/api/chatbot")
+    app.register_blueprint(auth_bp,       url_prefix="/api/auth")
+    app.register_blueprint(products_bp,   url_prefix="/api/products")
+    app.register_blueprint(orders_bp,     url_prefix="/api/orders")
+    app.register_blueprint(admin_bp,      url_prefix="/api/admin")
+    app.register_blueprint(analytics_bp,  url_prefix="/api/analytics")
+    app.register_blueprint(chatbot_bp,    url_prefix="/api/chatbot")
+    app.register_blueprint(search_bp,     url_prefix="/api/search")
+    app.register_blueprint(customers_bp,  url_prefix="/api/customers")
+
+    with app.app_context():
+        db.create_all()
+        _seed_default_admin()
+        _seed_sample_products()
 
     return app
+
 
 def _seed_default_admin():
     from app.models.user import User
@@ -130,15 +151,12 @@ def _seed_exotic_only():
     print(f"Seeded {len(exotic)} exotic products.")
 
 def _seed_sample_products():
-    """Seed all products from NR Sabji Mandi invoice."""
-    from app.models.product import Product
-    if Product.query.filter(Product.category.in_(['exotic_vegetable','exotic_fruit'])).first():
-        return  # exotic products already seeded
-    if not Product.query.first():
-        pass  # will seed everything below
-    else:
-        # Already have regular products, just add exotic ones
-        _seed_exotic_only()
+    """Seed all products. Runs every startup to handle ephemeral filesystems (Render etc)."""    from app.models.product import Product
+    count = Product.query.count()
+    if count >= 20:
+        # Add exotic if missing
+        if not Product.query.filter(Product.category.in_(['exotic_vegetable','exotic_fruit'])).first():
+            _seed_exotic_only()
         return
     sample = [
         # ── VEGETABLES ────────────────────────────────────────
