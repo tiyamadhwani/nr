@@ -151,7 +151,8 @@ def _seed_exotic_only():
     print(f"Seeded {len(exotic)} exotic products.")
 
 def _seed_sample_products():
-    """Seed all products. Runs every startup to handle ephemeral filesystems (Render etc)."""    from app.models.product import Product
+    """Seed all products. Runs every startup to handle ephemeral filesystems (Render etc)."""
+    from app.models.product import Product
     count = Product.query.count()
     if count >= 20:
         # Add exotic if missing
